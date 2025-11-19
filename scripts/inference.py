@@ -11,32 +11,37 @@ def run(args):
     
     print("----------- Starting Inference -----------")
     
-    # Check if image path is provided
     if not image_path:
-        print("Please provide an image path for inference using --image_path")
+        print("Error: No image path provided. Use --image_path <path>")
         return
     
-    # Load the model
+    # Load trained model
     print(f"Loading model from {model_path}...")
     model = tf.keras.models.load_model(model_path)
-    
-    # Load and preprocess the image
+
+    # Load + preprocess image
     print(f"Loading and processing image: {image_path}")
-    image = Image.open(image_path).resize((30, 30))
+    image = Image.open(image_path).convert("RGB")
+    image = image.resize((32, 32))  # FIXED SIZE
     image_array = np.array(image) / 255.0
     image_array = np.expand_dims(image_array, axis=0)
-    
-    # Predict the class
-    print("Predicting the class of the traffic sign...")
+
+    # Prediction
+    print("Predicting...")
     prediction = model.predict(image_array)
-    predicted_class = np.argmax(prediction, axis=1)[0]
+    predicted_class = int(np.argmax(prediction, axis=1)[0])
+    confidence = float(np.max(prediction))
+
     print(f"Predicted Class: {predicted_class}")
-    
+    print(f"Confidence: {confidence:.4f}")
+
     print("----------- Inference Complete -----------")
 
+
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Model Inference for Traffic Sign Recognition")
-    parser.add_argument('--model_dir', type=str, default='models', help='Directory to save models')
-    parser.add_argument('--image_path', type=str, required=True, help='Path of the image to predict')
+    parser = argparse.ArgumentParser(description="Inference for Traffic Sign Recognition")
+    parser.add_argument('--model_dir', type=str, default='models')
+    parser.add_argument('--image_path', type=str, required=True)
     args = parser.parse_args()
     run(args)
+
