@@ -5,4 +5,5 @@ seaborn
 tensorflow
 streamlit
 pillow
-argparse
+opencv-python
+
